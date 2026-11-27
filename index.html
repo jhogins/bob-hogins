@@ -94,6 +94,64 @@
       font-size: 0.9rem;
       color: var(--accent);
     }
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .actions button, .dialog-actions a, .dialog-actions button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      padding: 0 1.1rem;
+      font: 500 0.95rem system-ui, sans-serif;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .actions button:hover, .dialog-actions a:hover, .dialog-actions button:hover { border-color: var(--accent); }
+    .actions svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    dialog {
+      width: min(360px, 90vw);
+      padding: 1.25rem;
+      text-align: center;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.75); }
+    dialog img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    dialog p {
+      margin: 0.75rem 0 1rem;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      font-size: 0.9rem;
+    }
+    .dialog-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+    }
     footer {
       text-align: center;
       color: var(--muted);
@@ -107,7 +165,26 @@
     <img class="portrait" src="bob-hogins.jpg" width="1000" height="1019" alt="Bob Hogins in a tuxedo, seated at a grand piano">
     <h1>Bob Hogins</h1>
     <p class="tagline">Recordings &amp; performances</p>
+    <div class="actions">
+      <button type="button" id="copy-link">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
+        <span>Copy link</span>
+      </button>
+      <button type="button" id="show-qr">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h1M20 14h1"/></svg>
+        <span>QR code</span>
+      </button>
+    </div>
   </header>
+
+  <dialog id="qr-dialog" aria-label="QR code for this page">
+    <img src="bob-hogins-qr.png" width="1080" height="1080" alt="QR code linking to jhogins.github.io/bob-hogins">
+    <p>Scan to open this page</p>
+    <div class="dialog-actions">
+      <a href="bob-hogins-qr.png" download="bob-hogins-qr.png">Download</a>
+      <button type="button" id="close-qr">Close</button>
+    </div>
+  </dialog>
 
   <main>
     <section>
@@ -164,5 +241,31 @@
   </main>
 
   <footer>© Bob Hogins</footer>
+
+  <script>
+    const PAGE_URL = 'https://jhogins.github.io/bob-hogins/';
+
+    const copyBtn = document.getElementById('copy-link');
+    const copyLabel = copyBtn.querySelector('span');
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(PAGE_URL);
+      } catch {
+        const t = document.createElement('textarea');
+        t.value = PAGE_URL;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand('copy');
+        t.remove();
+      }
+      copyLabel.textContent = 'Copied!';
+      setTimeout(() => { copyLabel.textContent = 'Copy link'; }, 2000);
+    });
+
+    const dialog = document.getElementById('qr-dialog');
+    document.getElementById('show-qr').addEventListener('click', () => dialog.showModal());
+    document.getElementById('close-qr').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+  </script>
 </body>
 </html>
